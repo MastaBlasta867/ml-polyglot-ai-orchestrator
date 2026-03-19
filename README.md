@@ -63,4 +63,58 @@ NeuroWeave showcases:
 ---
 
 ## 🏗️ High-Level Architecture
+frontend/        → React web app
+gateway/         → Go orchestrator
+rust-engine/     → Rust performance engine
+ml-service/      → Python RAG + ML
+shared/          → API contracts (proto, OpenAPI, schemas)
+infra/           → Docker, CI/CD, Kubernetes manifests
+scripts/         → Dev tooling
+docs/            → Architecture diagrams + benchmarks
+ml-polyglot-ai-orchestrator/
+This mirrors real-world engineering practices:
+- Clear service boundaries  
+- Language separation  
+- Shared API contracts  
+- Infrastructure as first-class  
+- Documentation included  
+
+---
+
+## 📁 Folder Structure (Phase 1 Scaffold)
+├── frontend/
+├── gateway/
+├── rust-engine/
+├── ml-service/
+├── shared/
+├── infra/
+├── scripts/
+├── docs/
+└── README.md
+
+---
+
+## 📌 Project Status
+
+**Phase 1 (today):**  
+✔ Folder structure  
+✔ Starter files  
+✔ Professional README  
+✔ Repo ready for development
+
+**Phase 2 (next):**  
+Go module setup  
+Rust project init  
+Python service init  
+React app bootstrap  
+Shared API contracts  
+Docker setup  
+
+---
+
+## 👤 Author
+
+**Pomolefe (MastaBlasta867)**  
+📧 pomolefe1986@gmail.com  
+Distributed AI Engineer (in progress)
 
