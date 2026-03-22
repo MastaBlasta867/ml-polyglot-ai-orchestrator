@@ -1,3 +1,3 @@
-module github.com/MastaBlasta867/polyglot-ai-orchestrator/gateway
+module github.com/MastaBlasta867/ml-polyglot-ai-orchestrator/gateway
 
 go 1.22
