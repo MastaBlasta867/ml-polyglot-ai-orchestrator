@@ -1,6 +1,7 @@
 package handlers
 
 import (
+    "bytes"
     "encoding/json"
     "fmt"
     "math/rand"
@@ -50,16 +51,47 @@ func CreateDocumentJob(w http.ResponseWriter, r *http.Request) {
 
     id := newJobID()
 
+    // 1. Create job in "pending" state
     job := &Job{
         ID:     id,
-        Status: JobStatusCompleted,
-        Result: "stubbed result – pipeline not wired yet",
+        Status: JobStatusPending,
     }
 
     jobsMu.Lock()
     jobs[id] = job
     jobsMu.Unlock()
 
+    // 2. Kick off async processing
+    go func(jobID string, document string) {
+        // Prepare payload for Python service
+        payload := map[string]string{"document": document}
+        jsonData, _ := json.Marshal(payload)
+
+        // Call Python service
+        resp, err := http.Post("http://localhost:8000/process", "application/json", bytes.NewBuffer(jsonData))
+        if err != nil {
+            jobsMu.Lock()
+            jobs[jobID].Status = JobStatusCompleted
+            jobs[jobID].Result = fmt.Sprintf("error calling python service: %v", err)
+            jobsMu.Unlock()
+            return
+        }
+        defer resp.Body.Close()
+
+        var pyResp struct {
+            Result string `json:"result"`
+        }
+        json.NewDecoder(resp.Body).Decode(&pyResp)
+
+        // 3. Update job with result
+        jobsMu.Lock()
+        jobs[jobID].Status = JobStatusCompleted
+        jobs[jobID].Result = pyResp.Result
+        jobsMu.Unlock()
+
+    }(id, req.Document)
+
+    // 4. Return job ID immediately
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(createDocumentResponse{JobID: id})
 }
