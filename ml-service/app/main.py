@@ -1,9 +1,13 @@
 import redis
-
+import json
 from fastapi import FastAPI
+from sentence_transformers import SentenceTransformer
 
 app = FastAPI()
 r = redis.Redis(host="localhost", port=6379, db=0)
+
+# Load embedding model once at startup
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 @app.get("/healthz")
 def health_check():
@@ -11,19 +15,29 @@ def health_check():
 
 @app.post("/process")
 def process_document():
-    # This is where real processing will go later
+    # This will be replaced with real ML logic later
     return {"result": "Python processed the document successfully"}
 
-def make_pizza(order):
-    # This is where real ML work will go later
-    return f"Pizza for order {order} is ready!"
+def process_document_job(text: str):
+    # Generate real embeddings
+    embedding = model.encode(text).tolist()
+    return {"embedding": embedding}
 
-def check_for_orders():
-    order = r.lpop("pizza_orders")
-    if order:
-        result = make_pizza(order.decode())
-        r.rpush("pizza_results", result)
+def check_for_jobs():
+    job_data = r.lpop("ml_jobs")   # renamed
+    if not job_data:
+        return
+
+    # Parse JSON job
+    job = json.loads(job_data.decode())
+
+    task = job.get("task")
+    text = job.get("text")
+
+    if task == "embed":
+        result = process_document_job(text)
+        r.rpush("ml_results", json.dumps(result))  # renamed
 
 if __name__ == "__main__":
     while True:
-        check_for_orders()
+        check_for_jobs()
