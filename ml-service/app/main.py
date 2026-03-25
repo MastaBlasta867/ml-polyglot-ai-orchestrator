@@ -28,6 +28,8 @@ def check_for_jobs():
     if not job_data:
         return
 
+    print("Job received from Redis")
+
     # Parse JSON job
     job = json.loads(job_data.decode())
 
